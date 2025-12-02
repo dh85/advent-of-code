@@ -1,4 +1,4 @@
 import AoCCommon
-import Year2025
+import Year2016
 
-runDay(Day02())
+runDay(Day04())
