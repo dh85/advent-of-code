@@ -22,18 +22,22 @@ public struct Day14: DaySolver {
     private static let hexChars: [UInt8] = Array("0123456789abcdef".utf8)
 
     // Thread-safe hash storage with direct write access
+    // Each entry: 32 bytes hash + 2 bytes quintuple bitmask (16 hex chars)
     private final class HashStorage: @unchecked Sendable {
         let ptr: UnsafeMutablePointer<UInt8>
+        let quintuples: UnsafeMutablePointer<UInt16>  // Bitmask of which chars have quintuples
         let capacity: Int
 
         init(capacity: Int) {
             self.capacity = capacity
-            // 32 bytes per hash
             ptr = .allocate(capacity: capacity * 32)
+            quintuples = .allocate(capacity: capacity)
+            quintuples.initialize(repeating: 0, count: capacity)
         }
 
         deinit {
             ptr.deallocate()
+            quintuples.deallocate()
         }
 
         @inline(__always)
@@ -45,12 +49,26 @@ public struct Day14: DaySolver {
         func hash(_ index: Int) -> UnsafeBufferPointer<UInt8> {
             UnsafeBufferPointer(start: ptr.advanced(by: index * 32), count: 32)
         }
+        
+        @inline(__always)
+        func setQuintuples(_ index: Int, _ mask: UInt16) {
+            quintuples[index] = mask
+        }
+        
+        @inline(__always)
+        func hasQuintuple(_ index: Int, _ charIndex: UInt8) -> Bool {
+            (quintuples[index] & (1 << charIndex)) != 0
+        }
     }
 
-    private static let hexLookup: [UInt8] = {
+    // Map hex char to 0-15 index
+    private static let charToIndex: [UInt8] = {
         var table = [UInt8](repeating: 0, count: 256)
-        for i in 0..<16 {
-            table[Int(hexChars[i])] = UInt8(i)
+        for i in 0..<10 {
+            table[Int(UInt8(ascii: "0") + UInt8(i))] = UInt8(i)
+        }
+        for i in 0..<6 {
+            table[Int(UInt8(ascii: "a") + UInt8(i))] = UInt8(10 + i)
         }
         return table
     }()
@@ -118,25 +136,31 @@ public struct Day14: DaySolver {
     private static func findTriple(_ hash: UnsafeBufferPointer<UInt8>) -> UInt8? {
         for i in 0..<30 {
             if hash[i] == hash[i + 1] && hash[i] == hash[i + 2] {
-                return hash[i]
+                return charToIndex[Int(hash[i])]
             }
         }
         return nil
     }
 
+    // Compute quintuple bitmask for a hash
     @inline(__always)
-    private static func containsQuintuple(_ hash: UnsafeBufferPointer<UInt8>, _ char: UInt8) -> Bool
-    {
-        var count: UInt8 = 0
-        for i in 0..<32 {
-            if hash[i] == char {
+    private static func computeQuintupleMask(_ hash: UnsafeBufferPointer<UInt8>) -> UInt16 {
+        var mask: UInt16 = 0
+        var count: UInt8 = 1
+        var lastChar = hash[0]
+        
+        for i in 1..<32 {
+            if hash[i] == lastChar {
                 count += 1
-                if count >= 5 { return true }
+                if count >= 5 {
+                    mask |= (1 << charToIndex[Int(lastChar)])
+                }
             } else {
-                count = 0
+                lastChar = hash[i]
+                count = 1
             }
         }
-        return false
+        return mask
     }
 
     private func findKeys(salt: [UInt8], stretched: Bool) -> Int {
@@ -150,20 +174,21 @@ public struct Day14: DaySolver {
         defer { inputBuffer.deallocate() }
 
         salt.withUnsafeBufferPointer { saltPtr in
-            // Pre-compute first batch
+            // Pre-compute first batch with quintuple masks
             for i in 0..<bufferSize {
                 Self.computeHashInto(
                     salt: saltPtr, index: i, stretched: stretched,
                     inputBuffer: inputBuffer, output: storage.hashPointer(i))
+                storage.setQuintuples(i, Self.computeQuintupleMask(storage.hash(i)))
             }
 
             while keysFound < 64 {
-                let hash = storage.hash(index % bufferSize)
+                let bufIdx = index % bufferSize
+                let hash = storage.hash(bufIdx)
 
-                if let tripleChar = Self.findTriple(hash) {
+                if let tripleCharIdx = Self.findTriple(hash) {
                     for j in 1...1000 {
-                        let futureHash = storage.hash((index + j) % bufferSize)
-                        if Self.containsQuintuple(futureHash, tripleChar) {
+                        if storage.hasQuintuple((index + j) % bufferSize, tripleCharIdx) {
                             keysFound += 1
                             break
                         }
@@ -173,7 +198,8 @@ public struct Day14: DaySolver {
                 let nextIndex = index + bufferSize
                 Self.computeHashInto(
                     salt: saltPtr, index: nextIndex, stretched: stretched,
-                    inputBuffer: inputBuffer, output: storage.hashPointer(index % bufferSize))
+                    inputBuffer: inputBuffer, output: storage.hashPointer(bufIdx))
+                storage.setQuintuples(bufIdx, Self.computeQuintupleMask(storage.hash(bufIdx)))
                 index += 1
             }
         }
@@ -187,7 +213,7 @@ public struct Day14: DaySolver {
         let storage = HashStorage(capacity: batchSize)
         let numThreads = ProcessInfo.processInfo.activeProcessorCount
 
-        // Copy salt for each thread to avoid Sendable issues
+        // Compute hashes in parallel
         DispatchQueue.concurrentPerform(iterations: numThreads) { threadId in
             let inputBuffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: salt.count + 10)
             defer { inputBuffer.deallocate() }
@@ -204,6 +230,17 @@ public struct Day14: DaySolver {
                 }
             }
         }
+        
+        // Compute quintuple masks in parallel (cheap compared to MD5)
+        DispatchQueue.concurrentPerform(iterations: numThreads) { threadId in
+            let chunkSize = (batchSize + numThreads - 1) / numThreads
+            let start = threadId * chunkSize
+            let end = min(start + chunkSize, batchSize)
+            
+            for i in start..<end {
+                storage.setQuintuples(i, Self.computeQuintupleMask(storage.hash(i)))
+            }
+        }
 
         var keysFound = 0
         var index = 0
@@ -211,9 +248,9 @@ public struct Day14: DaySolver {
         while keysFound < 64 && index < batchSize - 1001 {
             let hash = storage.hash(index)
 
-            if let tripleChar = Self.findTriple(hash) {
+            if let tripleCharIdx = Self.findTriple(hash) {
                 for j in 1...1000 {
-                    if Self.containsQuintuple(storage.hash(index + j), tripleChar) {
+                    if storage.hasQuintuple(index + j, tripleCharIdx) {
                         keysFound += 1
                         break
                     }
