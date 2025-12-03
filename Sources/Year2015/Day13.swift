@@ -27,12 +27,14 @@ public struct Day13: DaySolver {
         David would lose 7 happiness units by sitting next to Bob.
         David would gain 41 happiness units by sitting next to Carol.
         """
+    public let expectedTestResult1: Result1? = 330
+    public let expectedTestResult2: Result2? = 286
 
     public func parse(input: String) -> Seating? {
         var happiness: [String: [String: Int]] = [:]
         var people: Set<String> = []
 
-        for line in input.components(separatedBy: .newlines).filter({ !$0.isEmpty }) {
+        for line in input.lines {
             let parts = line.split(separator: " ")
             let (person, neighbor) = (String(parts[0]), String(parts[10].dropLast()))
             let value = Int(parts[3])! * (parts[2] == "gain" ? 1 : -1)
@@ -44,19 +46,34 @@ public struct Day13: DaySolver {
         return Seating(happiness: happiness, people: people)
     }
 
-    private func calculateHappiness(_ arrangement: [String], _ seating: Seating) -> Int {
-        arrangement.indices.map { i in
+    private func calculateHappiness(_ arrangement: [Int], _ matrix: [[Int]]) -> Int {
+        let n = arrangement.count
+        var total = 0
+        for i in 0..<n {
             let person = arrangement[i]
-            let neighbors = [
-                arrangement[(i - 1 + arrangement.count) % arrangement.count],
-                arrangement[(i + 1) % arrangement.count],
-            ]
-            return neighbors.map { seating.happiness[person]?[$0] ?? 0 }.sum()
-        }.sum()
+            let left = arrangement[(i - 1 + n) % n]
+            let right = arrangement[(i + 1) % n]
+            total += matrix[person][left] + matrix[person][right]
+        }
+        return total
     }
 
     private func optimalHappiness(_ seating: Seating) -> Int {
-        Array(seating.people).permutations().map { calculateHappiness($0, seating) }.max()!
+        // Convert to index-based for faster lookup
+        let people = Array(seating.people)
+        let n = people.count
+        var matrix = [[Int]](repeating: [Int](repeating: 0, count: n), count: n)
+        for (i, p1) in people.enumerated() {
+            for (j, p2) in people.enumerated() {
+                matrix[i][j] = seating.happiness[p1]?[p2] ?? 0
+            }
+        }
+
+        // Fix first person to reduce permutations (circular table)
+        let others = Array(1..<n)
+        return others.permutations().map { perm in
+            calculateHappiness([0] + perm, matrix)
+        }.max()!
     }
 
     public func solvePart1(data: Seating) -> Int {

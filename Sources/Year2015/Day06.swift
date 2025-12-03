@@ -23,65 +23,60 @@ public struct Day06: DaySolver {
         toggle 0,0 through 999,0
         turn off 499,499 through 500,500
         """
+    public let expectedTestResult1: Result1? = 998996
+    public let expectedTestResult2: Result2? = 1_001_996
 
     public func parse(input: String) -> [Instruction]? {
-        input.components(separatedBy: .newlines)
-            .filter { !$0.isEmpty }
-            .map { line in
-                let pattern = /(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)/
-                let match = line.firstMatch(of: pattern)!
-                let action: Action =
-                    switch match.1 {
-                    case "turn on": .turnOn
-                    case "turn off": .turnOff
-                    default: .toggle
-                    }
-                return Instruction(
-                    action: action,
-                    x1: Int(match.2)!, y1: Int(match.3)!,
-                    x2: Int(match.4)!, y2: Int(match.5)!
-                )
-            }
-    }
-
-    private func processGrid<T: Equatable>(
-        data: [Instruction],
-        initial: T,
-        apply: (Action, inout T) -> Void,
-        result: ([T]) -> Int
-    ) -> Int {
-        var grid = Grid(rows: 1000, cols: 1000, initial: initial)
-        for inst in data {
-            for x in inst.x1...inst.x2 {
-                for y in inst.y1...inst.y2 {
-                    apply(inst.action, &grid[x, y])
+        input.lines.compactMap { line -> Instruction? in
+            let pattern = /(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)/
+            guard let match = line.firstMatch(of: pattern) else { return nil }
+            let action: Action =
+                switch match.1 {
+                case "turn on": .turnOn
+                case "turn off": .turnOff
+                default: .toggle
                 }
-            }
+            return Instruction(
+                action: action,
+                x1: Int(match.2)!, y1: Int(match.3)!,
+                x2: Int(match.4)!, y2: Int(match.5)!
+            )
         }
-        return result(grid.data.flatMap { $0 })
     }
 
     public func solvePart1(data: [Instruction]) -> Int {
-        processGrid(
-            data: data, initial: false,
-            apply: { action, light in
-                switch action {
-                case .turnOn: light = true
-                case .turnOff: light = false
-                case .toggle: light.toggle()
+        var grid = [Bool](repeating: false, count: 1_000_000)
+        for inst in data {
+            for y in inst.y1...inst.y2 {
+                let rowStart = y * 1000
+                for x in inst.x1...inst.x2 {
+                    let idx = rowStart + x
+                    switch inst.action {
+                    case .turnOn: grid[idx] = true
+                    case .turnOff: grid[idx] = false
+                    case .toggle: grid[idx].toggle()
+                    }
                 }
-            }, result: { $0.filter { $0 }.count })
+            }
+        }
+        return grid.count { $0 }
     }
 
     public func solvePart2(data: [Instruction]) -> Int {
-        processGrid(
-            data: data, initial: 0,
-            apply: { action, brightness in
-                switch action {
-                case .turnOn: brightness += 1
-                case .turnOff: brightness = max(0, brightness - 1)
-                case .toggle: brightness += 2
+        var grid = [Int](repeating: 0, count: 1_000_000)
+        for inst in data {
+            for y in inst.y1...inst.y2 {
+                let rowStart = y * 1000
+                for x in inst.x1...inst.x2 {
+                    let idx = rowStart + x
+                    switch inst.action {
+                    case .turnOn: grid[idx] += 1
+                    case .turnOff: grid[idx] = max(0, grid[idx] - 1)
+                    case .toggle: grid[idx] += 2
+                    }
                 }
-            }, result: { $0.sum() })
+            }
+        }
+        return grid.sum()
     }
 }

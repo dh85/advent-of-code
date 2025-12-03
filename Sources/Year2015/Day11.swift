@@ -9,57 +9,77 @@ public struct Day11: DaySolver {
 
     public let day = 11
     public let testInput = "abcdefgh"
+    public let expectedTestResult1: Result1? = "abcdffaa"
+    public let expectedTestResult2: Result2? = "abcdffbb"
 
     public func parse(input: String) -> String? { input }
 
-    private func increment(_ password: String) -> String {
-        var chars = Array(password)
-        var i = chars.count - 1
+    private let badChars: Set<UInt8> = [UInt8(ascii: "i"), UInt8(ascii: "o"), UInt8(ascii: "l")]
+    private let charA = UInt8(ascii: "a")
+    private let charZ = UInt8(ascii: "z")
 
+    private func increment(_ chars: inout [UInt8]) {
+        var i = chars.count - 1
         while i >= 0 {
-            if chars[i] == "z" {
-                chars[i] = "a"
+            if chars[i] == charZ {
+                chars[i] = charA
                 i -= 1
             } else {
-                chars[i] = Character(UnicodeScalar(chars[i].asciiValue! + 1))
+                chars[i] += 1
+                // Skip bad characters immediately
+                if badChars.contains(chars[i]) {
+                    chars[i] += 1
+                    // Reset all following chars to 'a'
+                    for j in (i + 1)..<chars.count {
+                        chars[j] = charA
+                    }
+                }
                 break
             }
         }
-
-        return String(chars)
     }
 
-    private func isValid(_ password: String) -> Bool {
-        let chars = Array(password)
-
-        guard !chars.contains(where: { "iol".contains($0) }) else { return false }
-
-        let hasStraight = (0..<chars.count - 2).contains { i in
-            chars[i].asciiValue! + 1 == chars[i + 1].asciiValue!
-                && chars[i + 1].asciiValue! + 1 == chars[i + 2].asciiValue!
+    private func isValid(_ chars: [UInt8]) -> Bool {
+        // Check for bad characters
+        for c in chars {
+            if badChars.contains(c) { return false }
         }
-        guard hasStraight else { return false }
 
-        var pairs: Set<Character> = []
+        // Check for straight of 3
+        var hasStraight = false
+        for i in 0..<(chars.count - 2) {
+            if chars[i] + 1 == chars[i + 1] && chars[i + 1] + 1 == chars[i + 2] {
+                hasStraight = true
+                break
+            }
+        }
+        if !hasStraight { return false }
+
+        // Check for two different pairs
+        var pairCount = 0
+        var lastPairChar: UInt8 = 0
         var i = 0
         while i < chars.count - 1 {
-            if chars[i] == chars[i + 1] {
-                pairs.insert(chars[i])
+            if chars[i] == chars[i + 1] && chars[i] != lastPairChar {
+                pairCount += 1
+                lastPairChar = chars[i]
                 i += 2
+                if pairCount >= 2 { return true }
             } else {
                 i += 1
             }
         }
 
-        return pairs.count >= 2
+        return false
     }
 
     private func nextValid(after password: String) -> String {
-        var current = increment(password)
-        while !isValid(current) {
-            current = increment(current)
+        var chars = password.map { $0.asciiValue! }
+        increment(&chars)
+        while !isValid(chars) {
+            increment(&chars)
         }
-        return current
+        return String(chars.map { Character(UnicodeScalar($0)) })
     }
 
     public func solvePart1(data: String) -> String {

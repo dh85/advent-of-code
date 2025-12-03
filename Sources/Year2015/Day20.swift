@@ -9,6 +9,8 @@ public struct Day20: DaySolver {
 
     public let day = 20
     public let testInput = "150"
+    public let expectedTestResult1: Result1? = 8
+    public let expectedTestResult2: Result2? = 8
 
     public func parse(input: String) -> Int? {
         Int(input.trimmingCharacters(in: .whitespacesAndNewlines))

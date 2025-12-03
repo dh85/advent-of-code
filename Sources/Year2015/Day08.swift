@@ -14,9 +14,11 @@ public struct Day08: DaySolver {
         "aaa\\"aaa"
         "\\x27"
         """
+    public let expectedTestResult1: Result1? = 12
+    public let expectedTestResult2: Result2? = 19
 
     public func parse(input: String) -> [String]? {
-        input.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        input.lines
     }
 
     private func memoryLength(_ s: String) -> Int {

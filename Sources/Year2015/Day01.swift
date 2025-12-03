@@ -9,6 +9,8 @@ public struct Day01: DaySolver {
 
     public let day = 1
     public let testInput = "()())"
+    public let expectedTestResult1: Result1? = -1
+    public let expectedTestResult2: Result2? = 5
 
     public func parse(input: String) -> String? { input }
 

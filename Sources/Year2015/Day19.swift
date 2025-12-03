@@ -25,6 +25,8 @@ public struct Day19: DaySolver {
 
         HOH
         """
+    public let expectedTestResult1: Result1? = 4
+    public let expectedTestResult2: Result2? = 2
 
     public func parse(input: String) -> Input? {
         let parts = input.components(separatedBy: "\n\n")

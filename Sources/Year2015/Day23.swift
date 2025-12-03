@@ -23,6 +23,8 @@ public struct Day23: DaySolver {
         tpl a
         inc a
         """
+    public let expectedTestResult1: Result1? = 0
+    public let expectedTestResult2: Result2? = 0
 
     public func parse(input: String) -> [Instruction]? {
         input.split(separator: "\n").map { line in

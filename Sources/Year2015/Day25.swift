@@ -16,6 +16,8 @@ public struct Day25: DaySolver {
     public let day = 25
     public let testInput =
         "To continue, please consult the code grid in the manual.  Enter the code at row 4, column 2."
+    public let expectedTestResult1: Result1? = 32_451_966
+    public let expectedTestResult2: Result2? = 0
 
     public func parse(input: String) -> Position? {
         let numbers = input.integers

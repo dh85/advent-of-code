@@ -17,23 +17,23 @@ public struct Day16: DaySolver {
         Sue 1: cars: 9, akitas: 3, goldfish: 0
         Sue 2: akitas: 9, children: 3, samoyeds: 9
         """
+    public let expectedTestResult1: Result1? = 0
+    public let expectedTestResult2: Result2? = 0
 
     public func parse(input: String) -> [Sue]? {
-        input.components(separatedBy: .newlines)
-            .filter { !$0.isEmpty }
-            .map { line in
-                let parts = line.replacingOccurrences(of: ",", with: "").replacingOccurrences(
-                    of: ":", with: ""
-                ).split(separator: " ")
-                let number = Int(parts[1])!
-                var properties: [String: Int] = [:]
+        input.lines.map { line in
+            let nums = line.integers
+            let parts = line.replacingOccurrences(of: ",", with: "").replacingOccurrences(
+                of: ":", with: ""
+            ).split(separator: " ")
+            var properties: [String: Int] = [:]
 
-                for i in stride(from: 2, to: parts.count, by: 2) {
-                    properties[String(parts[i])] = Int(parts[i + 1])!
-                }
-
-                return Sue(number: number, properties: properties)
+            for i in stride(from: 2, to: parts.count, by: 2) {
+                properties[String(parts[i])] = Int(parts[i + 1])!
             }
+
+            return Sue(number: nums[0], properties: properties)
+        }
     }
 
     private let target: [String: Int] = [

@@ -25,6 +25,8 @@ public struct Day21: DaySolver {
         Damage: 7
         Armor: 2
         """
+    public let expectedTestResult1: Result1? = 8
+    public let expectedTestResult2: Result2? = 0
 
     let weapons = [
         Item(cost: 8, damage: 4, armor: 0),
@@ -54,12 +56,9 @@ public struct Day21: DaySolver {
     ]
 
     public func parse(input: String) -> Boss? {
-        let lines = input.split(separator: "\n")
-        guard lines.count == 3 else { return nil }
-        let hp = Int(lines[0].split(separator: ": ")[1])!
-        let damage = Int(lines[1].split(separator: ": ")[1])!
-        let armor = Int(lines[2].split(separator: ": ")[1])!
-        return Boss(hp: hp, damage: damage, armor: armor)
+        let nums = input.integers
+        guard nums.count == 3 else { return nil }
+        return Boss(hp: nums[0], damage: nums[1], armor: nums[2])
     }
 
     public func solvePart1(data: Boss) -> Int {

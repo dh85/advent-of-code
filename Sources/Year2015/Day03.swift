@@ -9,6 +9,8 @@ public struct Day03: DaySolver {
 
     public let day = 3
     public let testInput = "^v^v^v^v^v"
+    public let expectedTestResult1: Result1? = 2
+    public let expectedTestResult2: Result2? = 11
 
     public func parse(input: String) -> String? { input }
 

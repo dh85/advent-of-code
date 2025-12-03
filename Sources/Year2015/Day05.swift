@@ -15,9 +15,11 @@ public struct Day05: DaySolver {
         haegwjzuvuyypxyu
         dvszwmarrgswjxmb
         """
+    public let expectedTestResult1: Result1? = 2
+    public let expectedTestResult2: Result2? = 0
 
     public func parse(input: String) -> [String]? {
-        input.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        input.lines
     }
 
     private func isNice1(_ string: String) -> Bool {

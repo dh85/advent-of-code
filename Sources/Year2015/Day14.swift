@@ -19,21 +19,22 @@ public struct Day14: DaySolver {
         Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
         Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.
         """
+    public let expectedTestResult1: Result1? = 2660
+    public let expectedTestResult2: Result2? = 1564
 
     private let raceDuration = 2503
 
     public func parse(input: String) -> [Reindeer]? {
-        input.components(separatedBy: .newlines)
-            .filter { !$0.isEmpty }
-            .map { line in
-                let p = line.split(separator: " ")
-                return Reindeer(
-                    name: String(p[0]),
-                    speed: Int(p[3])!,
-                    flyTime: Int(p[6])!,
-                    restTime: Int(p[13])!
-                )
-            }
+        input.lines.map { line in
+            let p = line.split(separator: " ")
+            let nums = line.integers
+            return Reindeer(
+                name: String(p[0]),
+                speed: nums[0],
+                flyTime: nums[1],
+                restTime: nums[2]
+            )
+        }
     }
 
     private func distance(_ reindeer: Reindeer, after seconds: Int) -> Int {

@@ -28,14 +28,16 @@ public struct Day07: DaySolver {
         NOT x -> h
         NOT y -> i
         """
+    public let expectedTestResult1: Result1? = 0
+    public let expectedTestResult2: Result2? = 0
 
     public func parse(input: String) -> [String: Gate]? {
         var circuit: [String: Gate] = [:]
-        
-        for line in input.components(separatedBy: .newlines).filter({ !$0.isEmpty }) {
+
+        for line in input.lines {
             let parts = line.components(separatedBy: " -> ")
             let tokens = parts[0].components(separatedBy: " ")
-            
+
             let gate: Gate
             if tokens.count == 1 {
                 gate = UInt16(tokens[0]) != nil ? .value(UInt16(tokens[0])!) : .wire(tokens[0])
@@ -50,32 +52,35 @@ public struct Day07: DaySolver {
             } else {
                 gate = .rshift(tokens[0], Int(tokens[2])!)
             }
-            
+
             circuit[parts[1]] = gate
         }
-        
+
         return circuit
     }
 
-    private func resolve(_ wire: String, _ circuit: [String: Gate], _ cache: inout [String: UInt16]) -> UInt16 {
+    private func resolve(_ wire: String, _ circuit: [String: Gate], _ cache: inout [String: UInt16])
+        -> UInt16
+    {
         if let cached = cache[wire] { return cached }
         if let value = UInt16(wire) { return value }
         guard let gate = circuit[wire] else { return 0 }
 
-        let result = switch gate {
-        case .value(let v): v
-        case .wire(let w): resolve(w, circuit, &cache)
-        case .and(let a, let b): resolve(a, circuit, &cache) & resolve(b, circuit, &cache)
-        case .or(let a, let b): resolve(a, circuit, &cache) | resolve(b, circuit, &cache)
-        case .lshift(let w, let n): resolve(w, circuit, &cache) << n
-        case .rshift(let w, let n): resolve(w, circuit, &cache) >> n
-        case .not(let w): ~resolve(w, circuit, &cache)
-        }
+        let result =
+            switch gate {
+            case .value(let v): v
+            case .wire(let w): resolve(w, circuit, &cache)
+            case .and(let a, let b): resolve(a, circuit, &cache) & resolve(b, circuit, &cache)
+            case .or(let a, let b): resolve(a, circuit, &cache) | resolve(b, circuit, &cache)
+            case .lshift(let w, let n): resolve(w, circuit, &cache) << n
+            case .rshift(let w, let n): resolve(w, circuit, &cache) >> n
+            case .not(let w): ~resolve(w, circuit, &cache)
+            }
 
         cache[wire] = result
         return result
     }
-    
+
     private func solveFor(_ wire: String, _ circuit: [String: Gate]) -> UInt16 {
         var cache: [String: UInt16] = [:]
         return resolve(wire, circuit, &cache)

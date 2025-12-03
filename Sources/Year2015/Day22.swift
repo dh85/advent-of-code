@@ -27,13 +27,13 @@ public struct Day22: DaySolver {
         Hit Points: 14
         Damage: 8
         """
+    public let expectedTestResult1: Result1? = 212
+    public let expectedTestResult2: Result2? = 212
 
     public func parse(input: String) -> Boss? {
-        let lines = input.split(separator: "\n")
-        guard lines.count == 2 else { return nil }
-        let hp = Int(lines[0].split(separator: ": ")[1])!
-        let damage = Int(lines[1].split(separator: ": ")[1])!
-        return Boss(hp: hp, damage: damage)
+        let nums = input.integers
+        guard nums.count == 2 else { return nil }
+        return Boss(hp: nums[0], damage: nums[1])
     }
 
     public func solvePart1(data: Boss) -> Int {

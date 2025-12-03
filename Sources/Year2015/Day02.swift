@@ -27,10 +27,11 @@ public struct Day02: DaySolver {
         2x3x4
         1x1x10
         """
+    public let expectedTestResult1: Result1? = 101
+    public let expectedTestResult2: Result2? = 48
 
     public func parse(input: String) -> [Box]? {
-        input.components(separatedBy: .newlines)
-            .filter { !$0.isEmpty }
+        input.lines
             .map { Box($0.split(separator: "x").compactMap { Int($0) }) }
     }
 

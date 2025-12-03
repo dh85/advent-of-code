@@ -15,6 +15,8 @@ public struct Day12: DaySolver {
 
     public let day = 12
     public let testInput = "[1,2,3]"
+    public let expectedTestResult1: Result1? = 6
+    public let expectedTestResult2: Result2? = 6
 
     public func parse(input: String) -> JSON? {
         guard let obj = try? JSONSerialization.jsonObject(with: Data(input.utf8)) else {
