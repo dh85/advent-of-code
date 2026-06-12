@@ -16,10 +16,10 @@ public struct Day03: DaySolver {
         818181911112111
         """
 
-    public let expectedTestResult1: Int? = 357
-    public let expectedTestResult2: Int? = 3_121_910_778_619
+    public let expectedTestResult1: Result1? = 357
+    public let expectedTestResult2: Result2? = 3_121_910_778_619
 
-    public func parse(input: String) -> [[Int]]? {
+    public func parse(input: String) throws -> [[Int]] {
         input.components(separatedBy: .newlines)
             .filter { !$0.isEmpty }
             .map { $0.compactMap(\.wholeNumberValue) }

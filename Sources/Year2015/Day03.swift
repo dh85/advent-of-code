@@ -12,7 +12,7 @@ public struct Day03: DaySolver {
     public let expectedTestResult1: Result1? = 2
     public let expectedTestResult2: Result2? = 11
 
-    public func parse(input: String) -> String? { input }
+    public func parse(input: String) throws -> String { input }
 
     private func move(_ pos: inout [Int], _ char: Character) {
         switch char {

@@ -24,7 +24,7 @@ public struct Day14: DaySolver {
 
     private let raceDuration = 2503
 
-    public func parse(input: String) -> [Reindeer]? {
+    public func parse(input: String) throws -> [Reindeer] {
         input.lines.map { line in
             let p = line.split(separator: " ")
             let nums = line.integers

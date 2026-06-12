@@ -31,7 +31,7 @@ public struct Day07: DaySolver {
     public let expectedTestResult1: Result1? = 0
     public let expectedTestResult2: Result2? = 0
 
-    public func parse(input: String) -> [String: Gate]? {
+    public func parse(input: String) throws -> [String: Gate] {
         var circuit: [String: Gate] = [:]
 
         for line in input.lines {

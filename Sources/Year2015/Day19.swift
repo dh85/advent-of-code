@@ -18,9 +18,9 @@ public struct Day19: DaySolver {
     public let expectedTestResult1: Result1? = 4
     public let expectedTestResult2: Result2? = 2
 
-    public func parse(input: String) -> ParsedData? {
+    public func parse(input: String) throws -> ParsedData {
         let parts = input.components(separatedBy: "\n\n")
-        guard parts.count == 2 else { return nil }
+        guard parts.count == 2 else { throw ParseError.invalidInput }
 
         let replacements = parts[0].split(separator: "\n").map { line in
             let components = line.split(separator: " ")

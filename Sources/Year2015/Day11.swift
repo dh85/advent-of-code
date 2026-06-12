@@ -12,7 +12,7 @@ public struct Day11: DaySolver {
     public let expectedTestResult1: Result1? = "abcdffaa"
     public let expectedTestResult2: Result2? = "abcdffbb"
 
-    public func parse(input: String) -> String? { input }
+    public func parse(input: String) throws -> String { input }
 
     private let badChars: Set<UInt8> = [UInt8(ascii: "i"), UInt8(ascii: "o"), UInt8(ascii: "l")]
     private let charA = UInt8(ascii: "a")

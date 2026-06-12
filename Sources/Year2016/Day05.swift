@@ -8,6 +8,9 @@ public struct Day05: DaySolver, Sendable {
     public typealias Result1 = String
     public typealias Result2 = String
 
+    public let expectedTestResult1: Result1? = "18f47a30"
+    public let expectedTestResult2: Result2? = "05ace8e3"
+
     public init() {}
 
     public let day = 5
@@ -17,7 +20,7 @@ public struct Day05: DaySolver, Sendable {
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f",
     ]
 
-    public func parse(input: String) -> [UInt8]? {
+    public func parse(input: String) throws -> [UInt8] {
         Array(input.trimmingCharacters(in: .whitespacesAndNewlines).utf8)
     }
 

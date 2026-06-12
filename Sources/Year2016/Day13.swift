@@ -12,8 +12,11 @@ public struct Day13: DaySolver {
     public let expectedTestResult1: Result1? = 11
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> Int? {
-        Int(input.trimmingCharacters(in: .whitespacesAndNewlines))
+    public func parse(input: String) throws -> Int {
+        guard let value = Int(input.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            throw ParseError.invalidInput
+        }
+        return value
     }
 
     private func isOpen(x: Int, y: Int, favoriteNumber: Int) -> Bool {

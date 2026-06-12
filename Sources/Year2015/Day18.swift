@@ -2,7 +2,7 @@ import AoCCommon
 
 public struct Day18: DaySolver {
     public struct LightGrid: Equatable {
-        let cells: [Bool]
+        let cells: [UInt8]
         let size: Int
     }
 
@@ -24,10 +24,10 @@ public struct Day18: DaySolver {
     public let expectedTestResult1: Result1? = 4
     public let expectedTestResult2: Result2? = 17
 
-    public func parse(input: String) -> LightGrid? {
+    public func parse(input: String) throws -> LightGrid {
         let lines = input.split(separator: "\n")
         let size = lines.count
-        let cells = lines.flatMap { $0.map { $0 == "#" } }
+        let cells = lines.flatMap { $0.map { UInt8($0 == "#" ? 1 : 0) } }
         return LightGrid(cells: cells, size: size)
     }
 
@@ -39,9 +39,9 @@ public struct Day18: DaySolver {
         simulate(data.cells, size: data.size, steps: data.size == 6 ? 5 : 100, stuckCorners: true)
     }
 
-    private func simulate(_ initial: [Bool], size: Int, steps: Int, stuckCorners: Bool) -> Int {
+    private func simulate(_ initial: [UInt8], size: Int, steps: Int, stuckCorners: Bool) -> Int {
         var current = initial
-        var next = current
+        var next = [UInt8](repeating: 0, count: size * size)
 
         if stuckCorners {
             fixCorners(&current, size: size)
@@ -55,36 +55,38 @@ public struct Day18: DaySolver {
             swap(&current, &next)
         }
 
-        return current.count { $0 }
+        return current.reduce(0) { $0 + Int($1) }
     }
 
-    private func step(from grid: [Bool], to next: inout [Bool], size: Int) {
+    private func step(from grid: [UInt8], to next: inout [UInt8], size: Int) {
         for y in 0..<size {
+            let minY = max(0, y - 1)
+            let maxY = min(size - 1, y + 1)
             for x in 0..<size {
-                var count = 0
-                let minY = max(0, y - 1)
-                let maxY = min(size - 1, y + 1)
                 let minX = max(0, x - 1)
                 let maxX = min(size - 1, x + 1)
 
+                var count: UInt8 = 0
                 for ny in minY...maxY {
+                    let rowOff = ny * size
                     for nx in minX...maxX {
-                        if ny == y && nx == x { continue }
-                        if grid[ny * size + nx] { count += 1 }
+                        count &+= grid[rowOff + nx]
                     }
                 }
-
+                // Subtract self
                 let idx = y * size + x
-                next[idx] = grid[idx] ? (count == 2 || count == 3) : count == 3
+                count &-= grid[idx]
+                // alive if count==3, or count==2 and currently alive
+                next[idx] = (count == 3 || (count == 2 && grid[idx] == 1)) ? 1 : 0
             }
         }
     }
 
-    private func fixCorners(_ grid: inout [Bool], size: Int) {
+    private func fixCorners(_ grid: inout [UInt8], size: Int) {
         let last = size - 1
-        grid[0] = true
-        grid[last] = true
-        grid[last * size] = true
-        grid[last * size + last] = true
+        grid[0] = 1
+        grid[last] = 1
+        grid[last * size] = 1
+        grid[last * size + last] = 1
     }
 }

@@ -55,9 +55,9 @@ public struct Day21: DaySolver {
         Item(cost: 80, damage: 0, armor: 3),
     ]
 
-    public func parse(input: String) -> Boss? {
+    public func parse(input: String) throws -> Boss {
         let nums = input.integers
-        guard nums.count == 3 else { return nil }
+        guard nums.count == 3 else { throw ParseError.invalidInput }
         return Boss(hp: nums[0], damage: nums[1], armor: nums[2])
     }
 

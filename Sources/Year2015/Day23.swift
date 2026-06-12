@@ -26,7 +26,7 @@ public struct Day23: DaySolver {
     public let expectedTestResult1: Result1? = 0
     public let expectedTestResult2: Result2? = 0
 
-    public func parse(input: String) -> [Instruction]? {
+    public func parse(input: String) throws -> [Instruction] {
         input.split(separator: "\n").map { line in
             let parts = line.replacingOccurrences(of: ",", with: "").split(separator: " ")
             switch parts[0] {

@@ -21,7 +21,7 @@ public struct Day09: DaySolver {
     public let expectedTestResult1: Result1? = 605
     public let expectedTestResult2: Result2? = 982
 
-    public func parse(input: String) -> Graph? {
+    public func parse(input: String) throws -> Graph {
         var distances: [String: [String: Int]] = [:]
         var cities: Set<String> = []
 

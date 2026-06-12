@@ -1,8 +1,14 @@
 import AoCCommon
+import Year2015
 import Year2016
+import Year2025
 
-runDay(Day01())
-runDay(Day02())
-runDay(Day03())
-runDay(Day04())
-runDay(Day05())
+let years: [any YearSolutions.Type] = [
+    Year2025.self
+]
+
+let dayFilter = parseDayFilter()
+
+for year in years {
+    runYear(year, dayFilter: dayFilter)
+}

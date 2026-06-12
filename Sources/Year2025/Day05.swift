@@ -29,6 +29,9 @@ public struct Day05: DaySolver {
     public typealias Result1 = Int
     public typealias Result2 = Int
 
+    public let expectedTestResult1: Result1? = 3
+    public let expectedTestResult2: Result2? = 14
+
     public init() {}
 
     public let day = 5
@@ -46,9 +49,9 @@ public struct Day05: DaySolver {
         32
         """
 
-    public func parse(input: String) -> Database? {
+    public func parse(input: String) throws -> Database {
         let parts = input.components(separatedBy: "\n\n")
-        guard parts.count == 2 else { return nil }
+        guard parts.count == 2 else { throw ParseError.invalidInput }
 
         let ranges = parts[0].split(separator: "\n").map {
             let nums = $0.split(separator: "-").map { Int($0)! }

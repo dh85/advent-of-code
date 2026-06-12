@@ -17,7 +17,7 @@ public struct Day08: DaySolver {
     public let expectedTestResult1: Result1? = 12
     public let expectedTestResult2: Result2? = 19
 
-    public func parse(input: String) -> [String]? {
+    public func parse(input: String) throws -> [String] {
         input.lines
     }
 

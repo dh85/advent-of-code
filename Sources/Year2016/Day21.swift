@@ -31,7 +31,7 @@ public struct Day21: DaySolver {
     public let expectedTestResult1: Result1? = "decab"
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> [Operation]? {
+    public func parse(input: String) throws -> [Operation] {
         input.lines.compactMap { line -> Operation? in
             let words = line.split(separator: " ")
             switch (words[0], words[1]) {

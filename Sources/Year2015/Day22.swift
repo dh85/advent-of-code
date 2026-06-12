@@ -30,9 +30,9 @@ public struct Day22: DaySolver {
     public let expectedTestResult1: Result1? = 212
     public let expectedTestResult2: Result2? = 212
 
-    public func parse(input: String) -> Boss? {
+    public func parse(input: String) throws -> Boss {
         let nums = input.integers
-        guard nums.count == 2 else { return nil }
+        guard nums.count == 2 else { throw ParseError.invalidInput }
         return Boss(hp: nums[0], damage: nums[1])
     }
 

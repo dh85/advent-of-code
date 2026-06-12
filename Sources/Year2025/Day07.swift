@@ -5,6 +5,9 @@ public struct Day07: DaySolver {
     public typealias Result1 = Int
     public typealias Result2 = Int
 
+    public let expectedTestResult1: Result1? = 21
+    public let expectedTestResult2: Result2? = 40
+
     public init() {}
 
     public let day = 7
@@ -27,7 +30,7 @@ public struct Day07: DaySolver {
         ...............
         """
 
-    public func parse(input: String) -> Grid<Character>? {
+    public func parse(input: String) throws -> Grid<Character> {
         Grid(parsing: input)
     }
 

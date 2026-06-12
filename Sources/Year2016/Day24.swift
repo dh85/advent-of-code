@@ -25,7 +25,7 @@ public struct Day24: DaySolver {
     public let expectedTestResult1: Result1? = 14
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> Maze? {
+    public func parse(input: String) throws -> Maze {
         let grid = input.lines.map { Array($0) }
         var locationDict: [Int: (row: Int, col: Int)] = [:]
 

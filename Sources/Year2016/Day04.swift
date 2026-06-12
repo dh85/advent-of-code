@@ -2,6 +2,9 @@ import AoCCommon
 import Foundation
 
 public struct Day04: DaySolver {
+    public let expectedTestResult1: Result1? = 1514
+    public let expectedTestResult2: Result2? = 0
+
     public struct Room: Equatable {
         let name: String
         let sectorID: Int
@@ -46,7 +49,7 @@ public struct Day04: DaySolver {
         totally-real-room-200[decoy]
         """
 
-    public func parse(input: String) -> [Room]? {
+    public func parse(input: String) throws -> [Room] {
         input.components(separatedBy: .newlines)
             .filter { !$0.isEmpty }
             .compactMap(parseRoom)

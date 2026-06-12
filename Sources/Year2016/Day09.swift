@@ -12,7 +12,7 @@ public struct Day09: DaySolver {
     public let expectedTestResult1: Result1? = 238
     public let expectedTestResult2: Result2? = 445
 
-    public func parse(input: String) -> [UInt8]? {
+    public func parse(input: String) throws -> [UInt8] {
         Array(input.filter { !$0.isWhitespace }.utf8)
     }
 

@@ -16,7 +16,7 @@ public struct Day20: DaySolver {
     public let expectedTestResult1: Result1? = 3
     public let expectedTestResult2: Result2? = 2
 
-    public func parse(input: String) -> ParsedData? {
+    public func parse(input: String) throws -> ParsedData {
         input.lines.compactMap { line -> (start: UInt64, end: UInt64)? in
             let parts = line.split(separator: "-")
             guard parts.count == 2,

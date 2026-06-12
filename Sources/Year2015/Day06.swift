@@ -26,7 +26,7 @@ public struct Day06: DaySolver {
     public let expectedTestResult1: Result1? = 998996
     public let expectedTestResult2: Result2? = 1_001_996
 
-    public func parse(input: String) -> [Instruction]? {
+    public func parse(input: String) throws -> [Instruction] {
         input.lines.compactMap { line -> Instruction? in
             let pattern = /(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)/
             guard let match = line.firstMatch(of: pattern) else { return nil }
@@ -45,38 +45,41 @@ public struct Day06: DaySolver {
     }
 
     public func solvePart1(data: [Instruction]) -> Int {
-        var grid = [Bool](repeating: false, count: 1_000_000)
+        var grid = [UInt8](repeating: 0, count: 1_000_000)
         for inst in data {
             for y in inst.y1...inst.y2 {
                 let rowStart = y * 1000
-                for x in inst.x1...inst.x2 {
-                    let idx = rowStart + x
-                    switch inst.action {
-                    case .turnOn: grid[idx] = true
-                    case .turnOff: grid[idx] = false
-                    case .toggle: grid[idx].toggle()
-                    }
+                switch inst.action {
+                case .turnOn:
+                    for x in inst.x1...inst.x2 { grid[rowStart + x] = 1 }
+                case .turnOff:
+                    for x in inst.x1...inst.x2 { grid[rowStart + x] = 0 }
+                case .toggle:
+                    for x in inst.x1...inst.x2 { grid[rowStart + x] ^= 1 }
                 }
             }
         }
-        return grid.count { $0 }
+        return grid.reduce(0) { $0 + Int($1) }
     }
 
     public func solvePart2(data: [Instruction]) -> Int {
-        var grid = [Int](repeating: 0, count: 1_000_000)
+        var grid = [UInt16](repeating: 0, count: 1_000_000)
         for inst in data {
             for y in inst.y1...inst.y2 {
                 let rowStart = y * 1000
-                for x in inst.x1...inst.x2 {
-                    let idx = rowStart + x
-                    switch inst.action {
-                    case .turnOn: grid[idx] += 1
-                    case .turnOff: grid[idx] = max(0, grid[idx] - 1)
-                    case .toggle: grid[idx] += 2
+                switch inst.action {
+                case .turnOn:
+                    for x in inst.x1...inst.x2 { grid[rowStart + x] &+= 1 }
+                case .turnOff:
+                    for x in inst.x1...inst.x2 {
+                        let idx = rowStart + x
+                        if grid[idx] > 0 { grid[idx] &-= 1 }
                     }
+                case .toggle:
+                    for x in inst.x1...inst.x2 { grid[rowStart + x] &+= 2 }
                 }
             }
         }
-        return grid.sum()
+        return grid.reduce(0) { $0 + Int($1) }
     }
 }

@@ -21,6 +21,9 @@ public struct Day07: DaySolver {
     public typealias Result1 = Int
     public typealias Result2 = Int
 
+    public let expectedTestResult1: Result1? = 2
+    public let expectedTestResult2: Result2? = 0
+
     public init() {}
 
     public let day = 7
@@ -31,7 +34,7 @@ public struct Day07: DaySolver {
         ioxxoj[asdfgh]zxcvbn
         """
 
-    public func parse(input: String) -> [IPv7]? {
+    public func parse(input: String) throws -> [IPv7] {
         input.components(separatedBy: .newlines)
             .filter { !$0.isEmpty }
             .map { line in

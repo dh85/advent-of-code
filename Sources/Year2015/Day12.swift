@@ -18,9 +18,9 @@ public struct Day12: DaySolver {
     public let expectedTestResult1: Result1? = 6
     public let expectedTestResult2: Result2? = 6
 
-    public func parse(input: String) -> JSON? {
+    public func parse(input: String) throws -> JSON {
         guard let obj = try? JSONSerialization.jsonObject(with: Data(input.utf8)) else {
-            return nil
+            throw ParseError.invalidInput
         }
         return JSON(value: obj)
     }

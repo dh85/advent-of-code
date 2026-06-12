@@ -16,6 +16,9 @@ public struct Day01: DaySolver {
     public typealias Result1 = Int
     public typealias Result2 = Int
 
+    public let expectedTestResult1: Result1? = 8
+    public let expectedTestResult2: Result2? = 4
+
     public init() {}
 
     public let day = 1
@@ -23,12 +26,12 @@ public struct Day01: DaySolver {
         R8, R4, R4, R8
         """
 
-    public func parse(input: String) -> [Instruction]? {
+    public func parse(input: String) throws -> [Instruction] {
         let cleaned = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let parts = cleaned.components(separatedBy: ", ")
         let blocks = cleaned.integers
 
-        guard parts.count == blocks.count else { return nil }
+        guard parts.count == blocks.count else { throw ParseError.invalidInput }
 
         return zip(parts, blocks).compactMap { part, blockCount in
             guard let firstChar = part.first,

@@ -5,37 +5,55 @@ public func runDay<S: DaySolver>(_ solver: S) {
     print("--- Day \(dayString) ---")
 
     print("[Test Input]")
-    if let testParsedData = solver.parse(input: solver.testInput) {
-        let testResult1 = solver.solvePart1(data: testParsedData)
+    do {
+        let testData1 = try solver.parse(input: solver.testInput)
+        let testResult1 = solver.solvePart1(data: testData1)
         let status1 = validationStatus(result: testResult1, expected: solver.expectedTestResult1)
         print("  Part 1: \(testResult1)\(status1)")
 
-        let testResult2 = solver.solvePart2(data: testParsedData)
+        let testInput2 = solver.testInput2 ?? solver.testInput
+        let testData2 = try solver.parse(input: testInput2)
+        let testResult2 = solver.solvePart2(data: testData2)
         let status2 = validationStatus(result: testResult2, expected: solver.expectedTestResult2)
         print("  Part 2: \(testResult2)\(status2)")
-    } else {
-        print("  Failed to parse test input.")
+    } catch {
+        print("  Failed to parse test input: \(error)")
     }
 
     print("--------------------")
 
     print("[Main Input]")
     let fileName = "day-\(dayString)"
-    guard let fileInput = readResource(named: fileName, resourceBundler: solver.bundle) else {
+    guard let fileInput = readResource(named: fileName, bundle: solver.bundle) else {
         print("====================")
         return
     }
 
-    if let fileParsedData = solver.parse(input: fileInput) {
+    do {
+        let fileParsedData = try solver.parse(input: fileInput)
         let (fileResult1, time1) = measure { solver.solvePart1(data: fileParsedData) }
         print("  Part 1: \(fileResult1) (\(formatDuration(time1)))")
 
         let (fileResult2, time2) = measure { solver.solvePart2(data: fileParsedData) }
         print("  Part 2: \(fileResult2) (\(formatDuration(time2)))")
-    } else {
-        print("  Failed to parse main input file.")
+    } catch {
+        print("  Failed to parse main input: \(error)")
     }
     print("====================")
+}
+
+public func runYear(_ year: any YearSolutions.Type, dayFilter: Int? = nil) {
+    let solvers = year.solvers.filter { dayFilter == nil || $0.day == dayFilter }
+    guard !solvers.isEmpty else {
+        print("No solvers found for year \(year.year)" + (dayFilter.map { " day \($0)" } ?? ""))
+        return
+    }
+    print("=== \(year.year) ===")
+    solvers.forEach { runDay($0) }
+}
+
+public func parseDayFilter() -> Int? {
+    CommandLine.arguments.dropFirst().first.flatMap(Int.init)
 }
 
 private func validationStatus<T: Equatable>(result: T, expected: T?) -> String {
@@ -64,11 +82,11 @@ private func formatDuration(_ duration: Duration) -> String {
 }
 
 private func readResource(
-    named resourceName: String, resourceBundler: Bundle, extension ext: String = "txt"
+    named resourceName: String, bundle: Bundle, extension ext: String = "txt"
 ) -> String? {
-    guard let url = resourceBundler.url(forResource: resourceName, withExtension: ext) else {
+    guard let url = bundle.url(forResource: resourceName, withExtension: ext) else {
         print(
-            "Error: Resource file '\(resourceName).\(ext)' not found in Swift Package bundle.")
+            "Error: Resource file '\(resourceName).\(ext)' not found in bundle.")
         return nil
     }
     do {

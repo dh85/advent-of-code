@@ -14,7 +14,7 @@ public struct Day14: DaySolver {
     public let expectedTestResult1: Result1? = 22728
     public let expectedTestResult2: Result2? = 22551
 
-    public func parse(input: String) -> [UInt8]? {
+    public func parse(input: String) throws -> [UInt8] {
         Array(input.trimmingCharacters(in: .whitespacesAndNewlines).utf8)
     }
 

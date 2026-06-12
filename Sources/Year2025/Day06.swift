@@ -16,6 +16,9 @@ public struct Day06: DaySolver {
     public typealias Result1 = String
     public typealias Result2 = String
 
+    public let expectedTestResult1: Result1? = "4277556"
+    public let expectedTestResult2: Result2? = "3263827"
+
     public init() {}
 
     public let day = 6
@@ -26,7 +29,7 @@ public struct Day06: DaySolver {
         *   +   *   +  
         """
 
-    public func parse(input: String) -> String? { input }
+    public func parse(input: String) throws -> String { input }
 
     public func solvePart1(data: String) -> String {
         String(parsePart1(data).map { $0.solve() }.reduce(0, +))

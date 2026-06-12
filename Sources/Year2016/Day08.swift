@@ -10,6 +10,7 @@ public struct Day08: DaySolver {
     public typealias ParsedData = [Instruction]
     public typealias Result1 = Int
     public typealias Result2 = String
+    
 
     public init() {}
 
@@ -44,7 +45,7 @@ public struct Day08: DaySolver {
         0b11110_00010_00100_01000_10000_11110: "Z",
     ]
 
-    public func parse(input: String) -> [Instruction]? {
+    public func parse(input: String) throws -> [Instruction] {
         input.lines.compactMap { line -> Instruction? in
             let nums = line.integers
             if line.hasPrefix("rect") {

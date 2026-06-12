@@ -18,7 +18,7 @@ public struct Day17: DaySolver {
     public let expectedTestResult1: Result1? = 4
     public let expectedTestResult2: Result2? = 3
 
-    public func parse(input: String) -> [Int]? {
+    public func parse(input: String) throws -> [Int] {
         input.lines.compactMap { Int($0) }
     }
 

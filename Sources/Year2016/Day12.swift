@@ -38,7 +38,7 @@ public struct Day12: DaySolver {
     public let expectedTestResult1: Result1? = 42
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> Program? {
+    public func parse(input: String) throws -> Program {
         let code: [UInt32] = input.lines.map { line in
             let parts = line.split(separator: " ")
             let op = parts[0]
@@ -94,6 +94,63 @@ public struct Day12: DaySolver {
         }
 
         while ip >= 0 && ip < count {
+            // Detect addition pattern: inc X / dec Y / jnz Y -2
+            if ip + 2 < count {
+                let i0 = code[ip]
+                let i1 = code[ip + 1]
+                let i2 = code[ip + 2]
+
+                if UInt8(i0 & 0xFF) == 1 && UInt8(i1 & 0xFF) == 2 && UInt8(i2 & 0xFF) == 3 {
+                    let regX = Int8(bitPattern: UInt8(i0 >> 24))
+                    let regY = Int8(bitPattern: UInt8(i1 >> 24))
+                    let jnzVal = Int16(bitPattern: UInt16((i2 >> 8) & 0xFFFF))
+                    let jnzOff = Int8(bitPattern: UInt8(i2 >> 24))
+
+                    if jnzOff == -2 && jnzVal == Program.regMarker + Int16(regY) {
+                        setReg(regX, getReg(regX) + getReg(regY))
+                        setReg(regY, 0)
+                        ip += 3
+                        continue
+                    }
+                }
+            }
+
+            // Detect multiply pattern: inc X / dec Y / jnz Y -2 / dec Z / jnz Z -5
+            if ip + 4 < count {
+                let i0 = code[ip]
+                let i1 = code[ip + 1]
+                let i2 = code[ip + 2]
+                let i3 = code[ip + 3]
+                let i4 = code[ip + 4]
+
+                let op0 = UInt8(i0 & 0xFF)
+                let op1 = UInt8(i1 & 0xFF)
+                let op2 = UInt8(i2 & 0xFF)
+                let op3 = UInt8(i3 & 0xFF)
+                let op4 = UInt8(i4 & 0xFF)
+
+                if op0 == 1 && op1 == 2 && op2 == 3 && op3 == 2 && op4 == 3 {
+                    let regX = Int8(bitPattern: UInt8(i0 >> 24))
+                    let regY = Int8(bitPattern: UInt8(i1 >> 24))
+                    let jnz2val = Int16(bitPattern: UInt16((i2 >> 8) & 0xFFFF))
+                    let jnz2off = Int8(bitPattern: UInt8(i2 >> 24))
+                    let regZ = Int8(bitPattern: UInt8(i3 >> 24))
+                    let jnz4val = Int16(bitPattern: UInt16((i4 >> 8) & 0xFFFF))
+                    let jnz4off = Int8(bitPattern: UInt8(i4 >> 24))
+
+                    if jnz2off == -2 && jnz4off == -5
+                        && jnz2val == Program.regMarker + Int16(regY)
+                        && jnz4val == Program.regMarker + Int16(regZ)
+                    {
+                        setReg(regX, getReg(regX) + getReg(regY) * getReg(regZ))
+                        setReg(regY, 0)
+                        setReg(regZ, 0)
+                        ip += 5
+                        continue
+                    }
+                }
+            }
+
             let instr = code[ip]
             let op = UInt8(instr & 0xFF)
             let val1 = Int16(bitPattern: UInt16((instr >> 8) & 0xFFFF))
@@ -102,14 +159,14 @@ public struct Day12: DaySolver {
             switch op {
             case 0:
                 setReg(val2, getVal(val1))
-                ip += 1  // cpy
+                ip += 1
             case 1:
                 setReg(val2, getReg(val2) + 1)
-                ip += 1  // inc
+                ip += 1
             case 2:
                 setReg(val2, getReg(val2) - 1)
-                ip += 1  // dec
-            default:  // jnz
+                ip += 1
+            default:
                 ip += getVal(val1) != 0 ? Int(val2) : 1
             }
         }

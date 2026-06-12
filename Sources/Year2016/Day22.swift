@@ -32,7 +32,7 @@ public struct Day22: DaySolver {
     public let expectedTestResult1: Result1? = 7
     public let expectedTestResult2: Result2? = 7
 
-    public func parse(input: String) -> [Node]? {
+    public func parse(input: String) throws -> [Node] {
         input.lines.compactMap { line -> Node? in
             // /dev/grid/node-x0-y0     10T    8T     2T   80%
             guard line.hasPrefix("/dev/grid/node-") else { return nil }

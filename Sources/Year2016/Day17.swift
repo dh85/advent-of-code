@@ -14,7 +14,7 @@ public struct Day17: DaySolver {
     public let expectedTestResult1: Result1? = "DDRRRD"
     public let expectedTestResult2: Result2? = 370
 
-    public func parse(input: String) -> String? {
+    public func parse(input: String) throws -> String {
         input.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 

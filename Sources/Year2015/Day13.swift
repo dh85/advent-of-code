@@ -30,7 +30,7 @@ public struct Day13: DaySolver {
     public let expectedTestResult1: Result1? = 330
     public let expectedTestResult2: Result2? = 286
 
-    public func parse(input: String) -> Seating? {
+    public func parse(input: String) throws -> Seating {
         var happiness: [String: [String: Int]] = [:]
         var people: Set<String> = []
 

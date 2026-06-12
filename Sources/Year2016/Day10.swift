@@ -26,7 +26,7 @@ public struct Day10: DaySolver {
     public let expectedTestResult1: Result1? = 2
     public let expectedTestResult2: Result2? = 30
 
-    public func parse(input: String) -> ParsedData? {
+    public func parse(input: String) throws -> ParsedData {
         var values: [(chip: Int, bot: Int)] = []
         var rules: [Int: Rule] = [:]
 

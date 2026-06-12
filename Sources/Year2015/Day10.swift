@@ -12,7 +12,7 @@ public struct Day10: DaySolver {
     public let expectedTestResult1: Result1? = 82350
     public let expectedTestResult2: Result2? = 1_166_642
 
-    public func parse(input: String) -> String? { input }
+    public func parse(input: String) throws -> String { input }
 
     private func lookAndSay(_ digits: [UInt8]) -> [UInt8] {
         var result = [UInt8]()

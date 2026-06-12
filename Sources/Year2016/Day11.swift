@@ -19,19 +19,18 @@ public struct Day11: DaySolver {
         }
 
         func isValid() -> Bool {
-            // For each floor, check if any unpaired microchip is with a generator
             for floor in 0...3 {
-                let generators = pairs.filter { $0.generator == floor }
-                let chips = pairs.filter { $0.microchip == floor }
-
-                // If there are generators on this floor
-                if !generators.isEmpty {
-                    // Check each chip on this floor
-                    for pair in chips {
-                        // If the chip's generator is NOT on this floor, it gets fried
-                        if pair.generator != floor {
-                            return false
-                        }
+                var hasGenerator = false
+                for pair in pairs {
+                    if pair.generator == floor {
+                        hasGenerator = true
+                        break
+                    }
+                }
+                if !hasGenerator { continue }
+                for pair in pairs {
+                    if pair.microchip == floor && pair.generator != floor {
+                        return false
                     }
                 }
             }
@@ -59,7 +58,7 @@ public struct Day11: DaySolver {
     public let expectedTestResult1: Result1? = 11
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> State? {
+    public func parse(input: String) throws -> State {
         var elements: [String: (generator: Int, microchip: Int)] = [:]
 
         for (floor, line) in input.lines.enumerated() {
@@ -113,8 +112,9 @@ public struct Day11: DaySolver {
             // Try moving 1 or 2 items
             for dir in directions {
                 let newFloor = currentFloor + dir
+                var foundTwo = false
 
-                // Moving 2 items
+                // Moving 2 items (prefer when going up)
                 for i in 0..<items.count {
                     for j in (i + 1)..<items.count {
                         var newState = state
@@ -139,11 +139,14 @@ public struct Day11: DaySolver {
                         if canonical.isValid() && !visited.contains(canonical) {
                             visited.insert(canonical)
                             queue.append((canonical, steps + 1))
+                            if dir == 1 { foundTwo = true }
                         }
                     }
                 }
 
-                // Moving 1 item
+                // Moving 1 item — skip going up with 1 if we already moved 2 up
+                if dir == 1 && foundTwo { continue }
+                var foundOne = false
                 for item in items {
                     var newState = state
                     newState.elevator = newFloor
@@ -158,8 +161,13 @@ public struct Day11: DaySolver {
                     if canonical.isValid() && !visited.contains(canonical) {
                         visited.insert(canonical)
                         queue.append((canonical, steps + 1))
+                        if dir == -1 { foundOne = true }
                     }
                 }
+
+                // Skip moving 2 items down if we already moved 1 down
+                // (already processed 2 above, so this prunes future states conceptually)
+                _ = foundOne
             }
         }
 

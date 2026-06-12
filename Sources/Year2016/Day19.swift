@@ -12,8 +12,11 @@ public struct Day19: DaySolver {
     public let expectedTestResult1: Result1? = 3
     public let expectedTestResult2: Result2? = 2
 
-    public func parse(input: String) -> Int? {
-        Int(input.trimmingCharacters(in: .whitespacesAndNewlines))
+    public func parse(input: String) throws -> Int {
+        guard let value = Int(input.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            throw ParseError.invalidInput
+        }
+        return value
     }
 
     // Josephus problem with k=2: winner = 2*L + 1 where n = 2^m + L

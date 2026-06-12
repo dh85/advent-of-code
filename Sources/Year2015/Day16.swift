@@ -20,7 +20,7 @@ public struct Day16: DaySolver {
     public let expectedTestResult1: Result1? = 0
     public let expectedTestResult2: Result2? = 0
 
-    public func parse(input: String) -> [Sue]? {
+    public func parse(input: String) throws -> [Sue] {
         input.lines.map { line in
             let nums = line.integers
             let parts = line.replacingOccurrences(of: ",", with: "").replacingOccurrences(

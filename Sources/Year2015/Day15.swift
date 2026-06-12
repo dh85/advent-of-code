@@ -24,7 +24,7 @@ public struct Day15: DaySolver {
     public let expectedTestResult1: Result1? = 62_842_880
     public let expectedTestResult2: Result2? = 57_600_000
 
-    public func parse(input: String) -> [Ingredient]? {
+    public func parse(input: String) throws -> [Ingredient] {
         input.lines.map { line in
             let name = String(line.split(separator: ":")[0])
             let nums = line.integers

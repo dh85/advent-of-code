@@ -16,7 +16,7 @@ public struct Day15: DaySolver {
     public let expectedTestResult1: Result1? = 5
     public let expectedTestResult2: Result2? = nil  // Part 2 adds a disc, test doesn't apply
 
-    public func parse(input: String) -> ParsedData? {
+    public func parse(input: String) throws -> ParsedData {
         // "Disc #1 has 5 positions; at time=0, it is at position 4."
         input.lines.compactMap { line -> (positions: Int, start: Int)? in
             let numbers = line.integers

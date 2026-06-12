@@ -1,7 +1,7 @@
 import AoCCommon
 
 public struct Day16: DaySolver {
-    public typealias ParsedData = [Bool]
+    public typealias ParsedData = [UInt8]
     public typealias Result1 = String
     public typealias Result2 = String
 
@@ -12,57 +12,65 @@ public struct Day16: DaySolver {
     public let expectedTestResult1: Result1? = "01100"
     public let expectedTestResult2: Result2? = nil
 
-    public func parse(input: String) -> [Bool]? {
-        input.trimmingCharacters(in: .whitespacesAndNewlines).map { $0 == "1" }
+    public func parse(input: String) throws -> [UInt8] {
+        input.trimmingCharacters(in: .whitespacesAndNewlines).map {
+            $0 == "1" ? UInt8(1) : UInt8(0)
+        }
     }
 
-    private func solve(_ initial: [Bool], diskSize: Int) -> String {
-        // Pre-allocate full buffer
-        var data = [Bool](repeating: false, count: diskSize)
+    private func solve(_ initial: [UInt8], diskSize: Int) -> String {
+        var data = [UInt8](repeating: 0, count: diskSize)
 
-        // Copy initial data
         for (i, b) in initial.enumerated() {
             data[i] = b
         }
 
-        // Dragon curve in-place: a + 0 + reverse(flip(a))
         var len = initial.count
         while len < diskSize {
             let newLen = min(len * 2 + 1, diskSize)
-            // Middle separator (if it fits)
+            // Middle separator
             if len < diskSize {
-                data[len] = false
+                data[len] = 0
             }
-            // Append reversed and flipped (only what fits)
+            // Append reversed and flipped
             var writePos = len + 1
             var readPos = len - 1
-            while writePos < newLen && readPos >= 0 {
-                data[writePos] = !data[readPos]
+            while writePos < newLen {
+                data[writePos] = data[readPos] ^ 1
                 writePos += 1
                 readPos -= 1
             }
             len = newLen
         }
 
-        // Checksum in-place
+        // Checksum in-place using XOR: same = 1, different = 0
+        // data[i] ^ data[i+1] gives 0 when same, 1 when different
+        // We want 1 when same, so: 1 - (data[i] ^ data[i+1]) = data[i] ^ data[i+1] ^ 1
         while len % 2 == 0 {
             var write = 0
-            for i in stride(from: 0, to: len, by: 2) {
-                data[write] = data[i] == data[i + 1]
+            var read = 0
+            while read < len {
+                data[write] = data[read] ^ data[read + 1] ^ 1
                 write += 1
+                read += 2
             }
             len = write
         }
 
-        return String(data.prefix(len).map { $0 ? "1" : "0" })
+        var result = ""
+        result.reserveCapacity(len)
+        for i in 0..<len {
+            result.append(data[i] == 1 ? "1" : "0")
+        }
+        return result
     }
 
-    public func solvePart1(data: [Bool]) -> String {
+    public func solvePart1(data: [UInt8]) -> String {
         let diskSize = data.count == 5 ? 20 : 272
         return solve(data, diskSize: diskSize)
     }
 
-    public func solvePart2(data: [Bool]) -> String {
+    public func solvePart2(data: [UInt8]) -> String {
         solve(data, diskSize: 35_651_584)
     }
 }
